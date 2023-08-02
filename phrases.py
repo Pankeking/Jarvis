@@ -148,7 +148,7 @@ WAKE_UP_PHRASES = [
 COMMAND_PHRASES = {
     "open browser": ["internet", "web", "browser", "firefox", "open browser", "start browser", "launch browser", "open firefox", "open web", "open internet"],
     "enter the matrix": ["matrix", "the matrix","terminal", "open terminal", "the terminal"],
-    "exit the matrix": ["return to zion", "zion", "return"],
+    "exit the matrix": ["return to zion", "zion", "return", "go back", "back"],
     "execute order 66": ["66", "order 66", "execute 66", "execute order"],
     "open visual studio code": ["open visual studio", "start visual studio", "launch visual studio", "let's code", "code", "visual studio", "visual studio code", "launch code editor", "code editor", "ooen code editor"],
     "get date": ["get date", "show date", "what's the date", "what day is it?", "what day", "date" ,"day"],

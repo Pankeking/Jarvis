@@ -4,8 +4,10 @@ import sys
 import pyttsx3
 import webbrowser
 import subprocess
+import datetime
 from fuzzywuzzy import fuzz
 from phrases import CONFIRMATION_PHRASES, COMMAND_PHRASES, WAKE_UP_PHRASES
+from helpers import format_date
 
 # TODO brightness command
 # TODO Date / hour command
@@ -25,28 +27,6 @@ def speak(text):
     tts_engine.say(text)
     tts_engine.runAndWait()
 
-def confirm_action(action):
-    # Initialize Voice Recognition
-    recognizer = sr.Recognizer()
-    speak(f"Do you want to {action}")
-    with sr.Microphone() as source:
-        print("waiting confirmation")
-        recognizer.adjust_for_ambient_noise(source)
-        try:
-            audio_confirmation = recognizer.listen(source)
-            text_confirmation = recognizer.recognize_google(audio_confirmation)
-            print(text_confirmation)
-            # Check positive response from confirmation phrases
-            for phrase in CONFIRMATION_PHRASES:
-                if phrase.lower() in text_confirmation.lower():
-                    return True
-            return False
-        except sr.WaitTimeoutError as e:
-            print(e)
-        except sr.RequestError as e:
-            print(e)
-        except sr.UnknownValueError as e:
-            print(e)
 
 def jarvis_wake_up():
     print("Suspended, awaiting")
@@ -83,7 +63,6 @@ def listen_for_commands():
             #   speak("I believe your intentions to be hostile")
             #   return 0
         elif is_listening:
-            print("listening")
             try:
                 # Use default microphone as source
                 with sr.Microphone() as source:
@@ -98,17 +77,17 @@ def listen_for_commands():
                 for command, phrases in COMMAND_PHRASES.items():
                     for phrase in phrases:
                         if phrase.lower() in recognized_audio.lower():
-                            if confirm_action(command):
-                                execute_command(command)
-                                executed = True
-                                break
-                            else:
-                                speak("Command not executed.")
-                        if executed == True:
+                            execute_command(command)
+                            executed = True
+                            speak("Waiting for the next command")
                             break
+                    if executed == True:
+                        break
+                if executed == False:
+                    speak("Command not executed.")
                 print("done?")
             except sr.WaitTimeoutError as e:
-                print("No speech detected, waiting for WAKE-UP phrase")
+                print("No speech detected, waiting for a command")
             except sr.UnknownValueError as e:
                 print("Could not understand: ", e)
             except sr.RequestError as e:
@@ -146,7 +125,7 @@ def google_this(query):
 
 def open_discord():
     speak("Opening Discord")
-    os.system("Discord")
+    subprocess.Popen("Discord", shell=True)
 
 def open_terminal():
     speak("Connecting to the MATRIX")
@@ -158,7 +137,8 @@ def open_visual_studio():
     os.system("code")
 
 def get_date():
-    speak("The date is today")
+    current_date = datetime.date.today()
+    speak(format_date(current_date))
 
 def get_time():
     speak("The time is now")
