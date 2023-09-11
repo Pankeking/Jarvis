@@ -122,6 +122,8 @@ WAKE_UP_PHRASES = [
     "Jarvis",
     "Hey Jarvis",
     "Activate",
+    "Jarvis",
+    "action",
     "Wake up Jarvis",
     "Hey AI Jarvis",
     "Jarvis listen up",
@@ -154,4 +156,5 @@ COMMAND_PHRASES = {
     "get date": ["get date", "show date", "what's the date", "what day is it?", "what day", "date" ,"day"],
     "get time": ["get time", "show time", "what's the time", "what time is it?", "what time", "time"],
     "open discord": ["open discord", "start discord", "run discord"],
+    "google this": ["search", "google", "search google", "find"]
 }

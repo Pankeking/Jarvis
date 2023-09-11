@@ -18,22 +18,21 @@ from helpers import format_date
 
 KILL_PHRASE = "end program"
 
-LISTEN_TIMEOUT = 2
+WAKE_UP_TIMEOUT = 3
+LISTEN_TIMEOUT = 2.5
+PAUSE_THRESHOLD = 0.5
+ENERGY_THRESHOLD = 300
 
-# Initialize text-to-speech and speech-recognizer
-tts_engine = pyttsx3.init()
-recognizer = sr.Recognizer()
-recognizer.pause_threshold = 0.5  # Set a lower pause threshold (in seconds)
-tts_engine.setProperty('rate', 180)
 
 class Jarvis:
     def __init__(self):
-        # Initialize speech recognition and reduce pause threshold
+        # Initialize speech recognition and thresholds
         self.recognizer = sr.Recognizer()
-        self.recognizer.pause_threshold = 0.5
+        self.recognizer.pause_threshold = PAUSE_THRESHOLD
+        self.recognizer.energy_threshold = ENERGY_THRESHOLD
         # Initialize text to speech engine and reduce speed rate
         self.engine = pyttsx3.init()
-        self.engine.setProperty('rate', 180)
+        self.engine.setProperty('rate', 175)
         # Listening status
         self.is_awake = False
 
@@ -42,46 +41,42 @@ class Jarvis:
         self.engine.runAndWait()
 
     def jarvis_wake_up(self):
-        # Listen for starting point
-        with sr.Microphone() as source:
-            recognizer.adjust_for_ambient_noise(source)
-            try:
-                start_command = recognizer.listen(source, timeout=LISTEN_TIMEOUT)
-                recognized_start = recognizer.recognize_google(start_command).lower()
-                print(recognized_start)
-                # Check activation command
-                for phrase in WAKE_UP_PHRASES:
-                    if phrase.lower() in recognized_start:
-                        self.speak("What do you want me to do sir?")
-                        self.is_awake = True
-            except sr.WaitTimeoutError as e:
-                # Timeout ocurred, continue waiting for wake-up phrase
-                pass
-            except sr.UnknownValueError as e:
-                # No recognized speech, continue waiting for wake-up phrase
-                pass
-            except sr.RequestError as e:
-                # Error with the speech recognition service, continue waiting for the wake-up phrase
-                self.speak(e)
+        # Run until wake up command is said
+        while self.is_awake == False:
+            # Listen for starting point
+            with sr.Microphone() as source:
+                self.recognizer.adjust_for_ambient_noise(source)
+                try:
+                    start_command = self.recognizer.listen(source, timeout=WAKE_UP_TIMEOUT)
+                    recognized_start = self.recognizer.recognize_google(start_command, language="en-US").lower()
+                    print(recognized_start)
+                    # Check activation command
+                    for phrase in WAKE_UP_PHRASES:
+                        if phrase.lower() in recognized_start:
+                            self.speak("Hello Sir, what")
+                            self.is_awake = True
+                            break
+                except sr.WaitTimeoutError as e:
+                    # Timeout ocurred, continue waiting for wake-up phrase
+                    pass
+                except sr.UnknownValueError as e:
+                    # No recognized speech, continue waiting for wake-up phrase
+                    pass
+                except sr.RequestError as e:
+                    # Error with the speech recognition service, continue waiting for the wake-up phrase
+                    self.speak(e)
+        self.listen_for_commands()
 
     def listen_for_commands(self):
-        is_listening = False
-        # Run the app continuosly
+        self.speak("are we doing today?")
         while True:
-            if not is_listening:
-                is_listening = self.jarvis_wake_up()
-                # if KILL_PHRASE.lower() in recognized_start.lower():
-                #   speak("I believe your intentions to be hostile")
-                #   return 0
-            elif is_listening:
+            # Use default microphone as source
+            with sr.Microphone() as source:
+                self.recognizer.adjust_for_ambient_noise(source)
                 try:
-                    # Use default microphone as source
-                    with sr.Microphone() as source:
-                        self.speak("Listening for commands")
-                        recognizer.adjust_for_ambient_noise(source)
-                        audio = recognizer.listen(source, timeout=LISTEN_TIMEOUT)
+                    audio = self.recognizer.listen(source, timeout=LISTEN_TIMEOUT)
                     # Using Google for online recognition
-                    recognized_audio = recognizer.recognize_google(audio)
+                    recognized_audio = self.recognizer.recognize_google(audio, language="en-US")
                     print("You said: ", recognized_audio)
                     # Check for recognized commands and confirm before executing
                     executed = False
@@ -118,7 +113,7 @@ class Jarvis:
         elif command == "get time":
             self.get_time()
         elif command == "google this":
-            self.google_this()
+            self.google_this("How to use google")
         elif command == "execute order 66":
             self.order_66()
         elif command == "exit the matrix":
@@ -129,7 +124,7 @@ class Jarvis:
         webbrowser.open_new_tab("http://") # Empty tab opening default user's homepage
         print("opened browser")
 
-    def google_this(self, query):
+    def google_this(self,query):
         self.speak(f"Googling {query}")
         search_url = (f"https://www.google.com/search?={query}")
         webbrowser.open(search_url)
@@ -171,10 +166,7 @@ class Jarvis:
 
 if __name__ == "__main__":
     assistant = Jarvis()
-    while True:
-        if not assistant.is_awake:
-            assistant.jarvis_wake_up()
-        else:
-            assistant.listen_for_commands()
+    assistant.jarvis_wake_up()
+    assistant.listen_for_commands()
             
 

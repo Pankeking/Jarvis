@@ -9,6 +9,9 @@ def format_date(date_obj):
     month = date_obj.month
     day = date_obj.day
     # Format the date as a readable text
-    formatted_date = f"{months[month]} the {ordinal_numbers[day]} of {year}"
+    return f"{months[month]} the {ordinal_numbers[day]} of {year}"
 
-    return formatted_date
+
+def format_hour(date,obj):
+
+    return 0
