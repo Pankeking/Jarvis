@@ -6,8 +6,8 @@ import webbrowser
 import subprocess
 import datetime
 from fuzzywuzzy import fuzz
-from phrases import CONFIRMATION_PHRASES, COMMAND_PHRASES, WAKE_UP_PHRASES
-from helpers import format_date
+from src.phrases import COMMAND_PHRASES, WAKE_UP_PHRASES
+from src.helpers import format_date
 
 # TODO brightness command
 # TODO Date / hour command
@@ -162,6 +162,7 @@ class Jarvis:
         if pid.strip().isdigit():
             subprocess.run(["kill", pid.strip()])
         self.speak("You have returned to Zion my child")
+
 
 
 if __name__ == "__main__":
